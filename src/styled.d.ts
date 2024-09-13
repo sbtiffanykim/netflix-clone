@@ -4,13 +4,13 @@ declare module 'styled-components' {
   export interface DefaultTheme {
     red: string;
     black: {
-      300: string;
-      200: string;
-      100: string;
+      darker: string;
+      dark: string;
+      light: string;
     };
     white: {
-      200: string;
-      100: string;
+      dark: string;
+      light: string;
     };
   }
 }
