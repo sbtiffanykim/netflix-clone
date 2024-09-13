@@ -1,7 +1,9 @@
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { IoSearch } from 'react-icons/io5';
 import { Link, useMatch } from 'react-router-dom';
+import { useState } from 'react';
+import { FaBell } from 'react-icons/fa';
 
 const Nav = styled.nav`
   display: flex;
@@ -61,10 +63,28 @@ const Circle = styled(motion.span)`
   margin: 0 auto;
 `;
 
-const Search = styled.span``;
+const SearchBar = styled(motion.div)`
+  color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
 
-const SearchIcon = styled(IoSearch)`
+const SearchIcon = styled(motion.svg).attrs(() => ({ as: IoSearch }))`
   font-size: 20px;
+  position: absolute;
+  left: 10px;
+`;
+
+const Input = styled(motion.input)`
+  position: absolute;
+  border: 1px solid white;
+  color: white;
+  padding-left: 35px;
+  background-color: rgba(151, 148, 148, 0.5);
+  height: 30px;
+  width: 250px;
+  transform-origin: right center;
 `;
 
 const logoVariants = {
@@ -82,12 +102,21 @@ const logoVariants = {
 };
 
 export default function Header() {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const inputAnimation = useAnimation();
+  const toggleSearch = () => setSearchOpen((prev) => !prev);
   const homeMatch = useMatch('/');
   const tvMatch = useMatch('tv');
   const movieMatch = useMatch('movies');
 
   return (
-    <Nav>
+    <Nav
+      onClick={() => {
+        if (searchOpen) {
+          setSearchOpen(false);
+        }
+      }}
+    >
       <Col>
         <Logo
           variants={logoVariants}
@@ -116,9 +145,22 @@ export default function Header() {
         </Items>
       </Col>
       <Col>
-        <Search>
-          <SearchIcon />
-        </Search>
+        <SearchBar
+          animate={{ x: searchOpen ? -210 : 0 }}
+          transition={{ type: 'linear', duration: 0.3 }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <SearchIcon onClick={toggleSearch} />
+          <Input
+            type='text'
+            placeholder='Titles, people, genres'
+            animate={{ scaleX: searchOpen ? 1 : 0 }}
+            transition={{ type: 'linear', duration: 0.3 }}
+          />
+        </SearchBar>
+        {/* <FaBell /> */}
       </Col>
     </Nav>
   );
