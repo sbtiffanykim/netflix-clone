@@ -68,23 +68,25 @@ const SearchBar = styled(motion.div)`
   display: flex;
   align-items: center;
   position: relative;
-`;
-
-const SearchIcon = styled(motion.svg).attrs(() => ({ as: IoSearch }))`
-  font-size: 20px;
-  position: absolute;
-  left: 10px;
+  svg {
+    height: 18px;
+    cursor: pointer;
+  }
 `;
 
 const Input = styled(motion.input)`
-  position: absolute;
   border: 1px solid white;
-  color: white;
-  padding-left: 35px;
   background-color: rgba(151, 148, 148, 0.5);
+  color: white;
+  padding: 5px 10px;
+  padding-left: 40px;
   height: 30px;
   width: 250px;
+  font-size: 15px;
   transform-origin: right center;
+  position: absolute;
+  right: 0;
+  z-index: -1;
 `;
 
 const logoVariants = {
@@ -104,19 +106,26 @@ const logoVariants = {
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const inputAnimation = useAnimation();
-  const toggleSearch = () => setSearchOpen((prev) => !prev);
+  const toggleSearch = () => {
+    if (searchOpen) {
+      inputAnimation.start({
+        scaleX: 0,
+      });
+    } else {
+      inputAnimation.start({
+        scaleX: 1,
+      });
+    }
+    setSearchOpen((prev) => !prev);
+  };
+
+  console.log(searchOpen);
   const homeMatch = useMatch('/');
   const tvMatch = useMatch('tv');
   const movieMatch = useMatch('movies');
 
   return (
-    <Nav
-      onClick={() => {
-        if (searchOpen) {
-          setSearchOpen(false);
-        }
-      }}
-    >
+    <Nav>
       <Col>
         <Logo
           variants={logoVariants}
@@ -145,22 +154,38 @@ export default function Header() {
         </Items>
       </Col>
       <Col>
-        <SearchBar
-          animate={{ x: searchOpen ? -210 : 0 }}
-          transition={{ type: 'linear', duration: 0.3 }}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <SearchIcon onClick={toggleSearch} />
-          <Input
-            type='text'
-            placeholder='Titles, people, genres'
-            animate={{ scaleX: searchOpen ? 1 : 0 }}
+        {/* <SearchBar>
+          <SearchIcon
+            onClick={toggleSearch}
+            animate={{ x: searchOpen ? -210 : 0 }}
             transition={{ type: 'linear', duration: 0.3 }}
           />
+          <Input
+            animate={inputAnimation}
+            type='text'
+            placeholder='Titles, people, genres'
+            transition={{ type: 'linear', duration: 0.3 }}
+          />
+        </SearchBar> */}
+        <SearchBar>
+          <motion.svg
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 512 512'
+            onClick={toggleSearch}
+            animate={{ x: searchOpen ? -220 : -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <path
+              fill='white'
+              d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z'
+            />
+          </motion.svg>
+          <Input
+            placeholder='Titles, people, genres'
+            animate={inputAnimation}
+            transition={{ duration: 0.2 }}
+          />
         </SearchBar>
-        {/* <FaBell /> */}
       </Col>
     </Nav>
   );
