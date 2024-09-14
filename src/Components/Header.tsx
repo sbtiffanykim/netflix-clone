@@ -1,18 +1,16 @@
 import styled from 'styled-components';
-import { motion, useAnimation } from 'framer-motion';
-import { IoSearch } from 'react-icons/io5';
+import { motion, useAnimation, useMotionValueEvent, useScroll } from 'framer-motion';
 import { Link, useMatch } from 'react-router-dom';
 import { useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 
-const Nav = styled.nav`
+const Nav = styled(motion.nav)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: black;
   padding: 20px 60px;
   color: white;
 `;
@@ -103,6 +101,15 @@ const logoVariants = {
   },
 };
 
+const navVariants = {
+  scrollDown: {
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+  },
+  scrollUp: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
+};
+
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const inputAnimation = useAnimation();
@@ -118,14 +125,24 @@ export default function Header() {
     }
     setSearchOpen((prev) => !prev);
   };
-
-  console.log(searchOpen);
   const homeMatch = useMatch('/');
   const tvMatch = useMatch('tv');
   const movieMatch = useMatch('movies');
-
+  const { scrollY } = useScroll();
+  const navAnimation = useAnimation();
+  useMotionValueEvent(scrollY, 'change', () => {
+    if (scrollY.get() > 80) {
+      navAnimation.start('scrollDown');
+    } else {
+      navAnimation.start('scrollUp');
+    }
+  });
   return (
-    <Nav>
+    <Nav
+      initial={{ backgroundColor: 'rgba(0, 0, 0, 0)' }}
+      animate={navAnimation}
+      variants={navVariants}
+    >
       <Col>
         <Logo
           variants={logoVariants}
@@ -182,6 +199,7 @@ export default function Header() {
           </motion.svg>
           <Input
             placeholder='Titles, people, genres'
+            initial={{ scaleX: 0 }}
             animate={inputAnimation}
             transition={{ duration: 0.2 }}
           />

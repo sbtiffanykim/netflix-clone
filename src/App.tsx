@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import reset from 'styled-reset';
 import Header from './Components/Header';
 import { theme } from './theme';
@@ -22,13 +22,25 @@ a {
 }
 `;
 
+const Layout = styled.div`
+  height: 200vh;
+`;
+
+const Content = styled.div`
+  margin-top: 100px;
+`;
+
 function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <Header />
-        <Outlet />
+        <Layout>
+          <Header />
+          <Content>
+            <Outlet />
+          </Content>
+        </Layout>
       </ThemeProvider>
     </>
   );
