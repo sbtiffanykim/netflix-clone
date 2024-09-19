@@ -12,8 +12,9 @@ ${reset}
 body {
   font-weight: 300;
   font-family: 'Poppins', sans-serif;
-  color:black;
+  color: ${(props) => props.theme.white.dark};
   line-height: 1.2;
+  background-color: black;
   
 }
 a {
@@ -26,10 +27,6 @@ const Layout = styled.div`
   height: 200vh;
 `;
 
-const Content = styled.div`
-  margin-top: 100px;
-`;
-
 function App() {
   return (
     <>
@@ -37,9 +34,7 @@ function App() {
         <GlobalStyle />
         <Layout>
           <Header />
-          <Content>
-            <Outlet />
-          </Content>
+          <Outlet />
         </Layout>
       </ThemeProvider>
     </>
