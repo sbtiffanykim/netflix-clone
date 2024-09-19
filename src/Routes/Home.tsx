@@ -2,8 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getMovies, IGetMoviesResult } from '../api';
 import styled from 'styled-components';
 import { makeImagePath } from '../utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
 
-const data = {
+const data: IGetMoviesResult = {
   dates: {
     maximum: '2024-09-25',
     minimum: '2024-08-14',
@@ -379,14 +381,47 @@ const Banner = styled.div<{ bgPhoto: string }>`
 `;
 
 const Title = styled.h2`
-  font-size: 70px;
+  font-size: 65px;
 `;
 
 const Overview = styled.p`
   margin-top: 10px;
-  font-size: 25px;
+  font-size: 23px;
   width: 50%;
 `;
+
+const Slider = styled.div`
+  position: relative;
+  top: -100px;
+`;
+
+const Row = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  position: absolute;
+  width: 100%;
+  gap: 5px;
+`;
+
+const Box = styled(motion.div)<{ bgphoto: string }>`
+  background-color: white;
+  height: 200px;
+  background-image: url(${(props) => props.bgphoto});
+  background-position: center center;
+  background-size: cover;
+`;
+
+const rowVariants = {
+  hidden: {
+    x: window.outerWidth - 25,
+  },
+  visible: {
+    x: 0,
+  },
+  exit: {
+    x: -window.outerWidth + 25,
+  },
+};
 
 export default function Home() {
   // const { data, isLoading } = useQuery<IGetMoviesResult>({
@@ -397,6 +432,17 @@ export default function Home() {
   // console.log(data, isLoading);
 
   const isLoading = false;
+  const [index, setIndex] = useState(0);
+  const offset = 6; // slider limit
+  const [leaving, setLeaving] = useState(false);
+  const increaseIndex = () => {
+    const totalResults = data?.results.length;
+    const maxIndex = Math.floor(totalResults / offset) - 1;
+    if (leaving) return;
+    toggleLeaving();
+    setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+  };
+  const toggleLeaving = () => setLeaving((prev) => !prev);
 
   return (
     <Wrapper>
@@ -404,10 +450,35 @@ export default function Home() {
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner bgPhoto={makeImagePath(data?.results[0].backdrop_path || '')}>
+          <Banner
+            bgPhoto={makeImagePath(data?.results[0].backdrop_path || '')}
+            onClick={increaseIndex}
+          >
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+          <Slider>
+            <AnimatePresence onExitComplete={toggleLeaving} initial={false}>
+              <Row
+                key={index}
+                variants={rowVariants}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+                transition={{ type: 'tween', duration: 0.8 }}
+              >
+                {data?.results
+                  .slice(1)
+                  .slice(offset * index, offset * (index + 1))
+                  .map((movie) => (
+                    <Box
+                      key={movie.id}
+                      bgphoto={makeImagePath(movie.backdrop_path, 'w500')}
+                    />
+                  ))}
+              </Row>
+            </AnimatePresence>
+          </Slider>
         </>
       )}
     </Wrapper>

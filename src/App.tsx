@@ -15,6 +15,7 @@ body {
   color: ${(props) => props.theme.white.dark};
   line-height: 1.2;
   background-color: black;
+  overflow-x: hidden;
   
 }
 a {
