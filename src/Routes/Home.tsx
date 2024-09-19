@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import { makeImagePath } from '../utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+import { FaAngleDown, FaPlay, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
+import IconButton from '../Components/IconButton';
+import { IoIosPlay, IoMdAdd } from 'react-icons/io';
 
 const data: IGetMoviesResult = {
   dates: {
@@ -368,7 +371,7 @@ const Loader = styled.div`
   align-items: center;
 `;
 
-const Banner = styled.div<{ bgPhoto: string }>`
+const Banner = styled.div<{ bgphoto: string }>`
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -376,7 +379,7 @@ const Banner = styled.div<{ bgPhoto: string }>`
   padding: 60px;
   z-index: 100;
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8)),
-    url(${(props) => props.bgPhoto});
+    url(${(props) => props.bgphoto});
   background-size: cover;
 `;
 
@@ -403,12 +406,52 @@ const Row = styled(motion.div)`
   gap: 5px;
 `;
 
-const Box = styled(motion.div)<{ bgphoto: string }>`
+const Box = styled(motion.div)`
   background-color: white;
   height: 200px;
+  background-position: center center;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const BoxImg = styled.div<{ bgphoto: string }>`
   background-image: url(${(props) => props.bgphoto});
   background-position: center center;
   background-size: cover;
+  width: 100%;
+  height: 100%;
+`;
+
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.light};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: -10;
+  h4 {
+    font-size: 15px;
+    font-weight: 500;
+    margin-top: 2px;
+    margin-bottom: 15px;
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 5px;
 `;
 
 const rowVariants = {
@@ -420,6 +463,24 @@ const rowVariants = {
   },
   exit: {
     x: -window.outerWidth + 25,
+  },
+};
+
+const boxVariants = {
+  initial: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.2,
+    y: -100,
+    transition: { delay: 0.5, type: 'tween', duration: 0.2 },
+  },
+};
+
+const infoVariants = {
+  hover: {
+    opacity: 1,
+    transition: { delay: 0.5, type: 'tween', duration: 0.2 },
   },
 };
 
@@ -451,7 +512,9 @@ export default function Home() {
       ) : (
         <>
           <Banner
-            bgPhoto={makeImagePath(data?.results[0].backdrop_path || '')}
+            bgphoto={makeImagePath(
+              data?.results[0].backdrop_path || data?.results[0].poster_path
+            )}
             onClick={increaseIndex}
           >
             <Title>{data?.results[0].title}</Title>
@@ -473,8 +536,31 @@ export default function Home() {
                   .map((movie) => (
                     <Box
                       key={movie.id}
-                      bgphoto={makeImagePath(movie.backdrop_path, 'w500')}
-                    />
+                      variants={boxVariants}
+                      initial='initial'
+                      whileHover='hover'
+                    >
+                      <BoxImg
+                        bgphoto={makeImagePath(
+                          movie.backdrop_path || movie.poster_path,
+                          'w500'
+                        )}
+                      />
+                      <Info variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                        <ButtonRow>
+                          <ButtonContainer>
+                            <IconButton icon={<IoIosPlay />} />
+                            <IconButton icon={<IoMdAdd />} />
+                            <IconButton icon={<FaRegThumbsUp />} />
+                            <IconButton icon={<FaRegThumbsDown />} />
+                          </ButtonContainer>
+                          <ButtonContainer>
+                            <IconButton icon={<FaAngleDown />} />
+                          </ButtonContainer>
+                        </ButtonRow>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
