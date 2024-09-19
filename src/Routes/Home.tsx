@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { FaAngleDown, FaPlay, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
 import IconButton from '../Components/IconButton';
 import { IoIosPlay, IoMdAdd } from 'react-icons/io';
+import { useMatch, useNavigate } from 'react-router-dom';
+import MovieModal from '../Components/MovieModal';
 
 const data: IGetMoviesResult = {
   dates: {
@@ -454,6 +456,13 @@ const ButtonContainer = styled.div`
   gap: 5px;
 `;
 
+const Overlay = styled(motion.div)`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0, 0, 0);
+`;
+
 const rowVariants = {
   hidden: {
     x: window.outerWidth - 25,
@@ -484,6 +493,12 @@ const infoVariants = {
   },
 };
 
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 0.7, zIndex: 1000 },
+  exit: { opacity: 0 },
+};
+
 export default function Home() {
   // const { data, isLoading } = useQuery<IGetMoviesResult>({
   //   queryKey: ['movies', 'nowPlaying'],
@@ -492,7 +507,12 @@ export default function Home() {
 
   // console.log(data, isLoading);
 
+  // only for testing
   const isLoading = false;
+
+  const navigate = useNavigate();
+  const moviePathMatch = useMatch('/movies/:movieId');
+
   const [index, setIndex] = useState(0);
   const offset = 6; // slider limit
   const [leaving, setLeaving] = useState(false);
@@ -504,6 +524,10 @@ export default function Home() {
     setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
   };
   const toggleLeaving = () => setLeaving((prev) => !prev);
+  const onBoxClicked = (movieId: number) => {
+    navigate(`/movies/${movieId}`);
+  };
+  const overlayClicked = () => navigate('/');
 
   return (
     <Wrapper>
@@ -535,10 +559,12 @@ export default function Home() {
                   .slice(offset * index, offset * (index + 1))
                   .map((movie) => (
                     <Box
+                      layoutId={movie.id + ''}
                       key={movie.id}
                       variants={boxVariants}
                       initial='initial'
                       whileHover='hover'
+                      onClick={() => onBoxClicked(movie.id)}
                     >
                       <BoxImg
                         bgphoto={makeImagePath(
@@ -565,6 +591,20 @@ export default function Home() {
               </Row>
             </AnimatePresence>
           </Slider>
+          <AnimatePresence>
+            {moviePathMatch ? (
+              <>
+                <Overlay
+                  onClick={overlayClicked}
+                  variants={overlayVariants}
+                  initial='hidden'
+                  animate='visible'
+                  exit='exit'
+                />
+                <MovieModal layoutId={moviePathMatch.params.movieId} />
+              </>
+            ) : null}
+          </AnimatePresence>
         </>
       )}
     </Wrapper>

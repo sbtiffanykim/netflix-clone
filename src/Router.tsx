@@ -19,6 +19,10 @@ const routes = [
         element: <Tv />,
       },
       {
+        path: 'movies/:movieId',
+        element: <Home />,
+      },
+      {
         path: 'movies',
         element: <Movies />,
       },
