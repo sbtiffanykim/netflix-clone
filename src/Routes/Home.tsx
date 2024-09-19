@@ -1,13 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { getMovies, IGetMoviesResult } from '../api';
-import styled from 'styled-components';
-import { makeImagePath } from '../utils';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { FaAngleDown, FaPlay, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
-import IconButton from '../Components/IconButton';
-import { IoIosPlay, IoMdAdd } from 'react-icons/io';
 import { useMatch, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import styled from 'styled-components';
+import { FaAngleDown, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
+import { IoIosPlay, IoMdAdd } from 'react-icons/io';
+import { AnimatePresence, motion } from 'framer-motion';
+import IconButton from '../Components/IconButton';
+import { getMovies, IGetMoviesResult } from '../api';
+import { makeImagePath } from '../utils';
 import MovieModal from '../Components/MovieModal';
 
 const data: IGetMoviesResult = {
@@ -517,7 +517,7 @@ export default function Home() {
   const offset = 6; // slider limit
   const [leaving, setLeaving] = useState(false);
   const increaseIndex = () => {
-    const totalResults = data?.results.length;
+    const totalResults = data?.results.length || 0;
     const maxIndex = Math.floor(totalResults / offset) - 1;
     if (leaving) return;
     toggleLeaving();
