@@ -6,7 +6,7 @@ import { FaAngleDown, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
 import { IoIosPlay, IoMdAdd } from 'react-icons/io';
 import { AnimatePresence, motion } from 'framer-motion';
 import IconButton from '../Components/IconButton';
-import { getMovies, IGetMoviesResult } from '../api';
+import { getNowPlayingMovies, IGetMoviesResult } from '../api';
 import { makeImagePath } from '../utils';
 import MovieModal from '../Components/MovieModal';
 
@@ -397,7 +397,13 @@ const Overview = styled.p`
 
 const Slider = styled.div`
   position: relative;
-  top: -100px;
+  top: -70px;
+  h1 {
+    font-weight: 600;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
 `;
 
 const Row = styled(motion.div)`
@@ -500,10 +506,12 @@ const overlayVariants = {
 };
 
 export default function Home() {
-  // const { data, isLoading } = useQuery<IGetMoviesResult>({
-  //   queryKey: ['movies', 'nowPlaying'],
-  //   queryFn: getMovies,
-  // });
+  // const { data: nowPlaying, isLoading: isNowPlayingLoading } = useQuery<IGetMoviesResult>(
+  //   {
+  //     queryKey: ['movies', 'nowPlaying'],
+  //     queryFn: getNowPlayingMovies,
+  //   }
+  // );
 
   // console.log(data, isLoading);
 
@@ -545,6 +553,7 @@ export default function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
+            <h1>Now Playing</h1>
             <AnimatePresence onExitComplete={toggleLeaving} initial={false}>
               <Row
                 key={index}

@@ -2,65 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { IoIosPlay, IoMdAdd } from 'react-icons/io';
+import { FaRegThumbsDown, FaRegThumbsUp, FaStar } from 'react-icons/fa';
+import ReactPlayer from 'react-player/lazy';
 import { getMovieDetail, getMovieTrailer, IMovieDetail } from '../api';
 import { makeImagePath } from '../utils';
 import IconButton from './IconButton';
-import { IoIosPlay, IoMdAdd } from 'react-icons/io';
-import { FaRegThumbsDown, FaRegThumbsUp, FaStar } from 'react-icons/fa';
-
-// used in dev mode only
-const data: IMovieDetail = {
-  adult: false,
-  backdrop_path: '/mKOBdgaEFguADkJhfFslY7TYxIh.jpg',
-  belongs_to_collection: null,
-  genres: [
-    {
-      id: 28,
-      name: 'Action',
-    },
-    {
-      id: 878,
-      name: 'Science Fiction',
-    },
-    {
-      id: 35,
-      name: 'Comedy',
-    },
-    {
-      id: 12,
-      name: 'Adventure',
-    },
-    {
-      id: 53,
-      name: 'Thriller',
-    },
-  ],
-  homepage: 'https://borderlands.movie',
-  id: 365177,
-  imdb_id: 'tt4978420',
-  origin_country: ['US'],
-  original_language: 'en',
-  original_title: 'Borderlands',
-  overview:
-    'Returning to her home planet, an infamous bounty hunter forms an unexpected alliance with a team of unlikely heroes. Together, they battle monsters and dangerous bandits to protect a young girl who holds the key to unimaginable power.',
-  poster_path: '/865DntZzOdX6rLMd405R0nFkLmL.jpg',
-  release_date: '2024-08-07',
-  revenue: 30863794,
-  runtime: 101,
-  spoken_languages: [
-    {
-      english_name: 'English',
-      iso_639_1: 'en',
-      name: 'English',
-    },
-  ],
-  status: 'Released',
-  tagline: 'Chaos loves company.',
-  title: 'Borderlands',
-  video: false,
-  vote_average: 5.838,
-  vote_count: 521,
-};
 
 interface IModalProps {
   layoutId?: string;
@@ -80,9 +27,12 @@ const Modal = styled(motion.div)`
   overflow: hidden;
 `;
 
-const CoverImg = styled.div<{ bgphoto: string }>`
+const Media = styled.div`
   width: 100%;
   height: 60%;
+`;
+
+const CoverImg = styled.div<{ bgphoto: string }>`
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(24, 24, 24, 0.5)),
     url(${(props) => props.bgphoto});
   background-size: cover;
@@ -169,24 +119,38 @@ const Info = styled.div`
 
 export default function MovieModal({ layoutId }: IModalProps) {
   const { movieId } = useParams();
-  //   const { data, isLoading } = useQuery<IMovieDetail>({
-  //     queryKey: ['movie', movieId],
-  //     queryFn: getMovieDetail,
-  //   });
+  const { data, isLoading } = useQuery<IMovieDetail>({
+    queryKey: ['movie', movieId],
+    queryFn: getMovieDetail,
+  });
 
-  // const { data: trailer, isLoading: isTrailerLoading } = useQuery({
-  //   queryKey: ['movie_trailer', movieId],
-  //   queryFn: getMovieTrailer,
-  // });
+  const { data: trailer, isLoading: isTrailerLoading } = useQuery({
+    queryKey: ['movie_trailer', movieId],
+    queryFn: getMovieTrailer,
+  });
 
-  const isLoading = false; // dev purpose
   const genres = data?.genres.map((item) => item.name).join(', ');
 
   return (
     <>
       {!isLoading ? (
         <Modal layoutId={layoutId}>
-          <CoverImg bgphoto={makeImagePath(data?.backdrop_path || data?.poster_path)} />
+          <Media>
+            {!isTrailerLoading && trailer ? (
+              <ReactPlayer
+                url={trailer}
+                muted={true}
+                playing={true}
+                controls={true}
+                width={'100%'}
+                height={'100%'}
+              />
+            ) : (
+              <CoverImg
+                bgphoto={makeImagePath(data?.backdrop_path || data?.poster_path)}
+              />
+            )}
+          </Media>
           <Content>
             <TopGrid>
               <Title>{data?.title}</Title>

@@ -35,7 +35,7 @@ const BoxButton = styled(motion.button)<{ height: number; width: number }>`
   }
 `;
 
-export default function IconButton({ icon, height = 20, width = 20 }: IButtonProps) {
+export default function IconButton({ icon, height = 15, width = 15 }: IButtonProps) {
   return (
     <BoxButton height={height} width={width}>
       {icon}

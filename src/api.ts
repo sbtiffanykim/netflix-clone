@@ -76,7 +76,7 @@ export interface IMovieDetail {
   vote_count: number;
 }
 
-export const getMovies = () => {
+export const getNowPlayingMovies = () => {
   return instance
     .get(`movie/now_playing?language=en-US&page=1`)
     .then((response) => response.data);
