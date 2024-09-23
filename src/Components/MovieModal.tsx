@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoIosPlay, IoMdAdd } from 'react-icons/io';
 import { FaRegThumbsDown, FaRegThumbsUp, FaStar } from 'react-icons/fa';
@@ -8,6 +8,10 @@ import ReactPlayer from 'react-player/lazy';
 import { getMovieDetail, getMovieTrailer, IMovieDetail } from '../api';
 import { makeImagePath } from '../utils';
 import IconButton from './IconButton';
+import { IoClose } from 'react-icons/io5';
+import { useRecoilState } from 'recoil';
+import { modalState } from '../atoms';
+import Overlay from './Overlay';
 
 interface IModalProps {
   layoutId?: string;
@@ -25,11 +29,28 @@ const Modal = styled(motion.div)`
   margin: auto;
   border-radius: 10px;
   overflow: hidden;
+  z-index: 1000;
+`;
+
+const CloseBtn = styled(IoClose)`
+  height: 28px;
+  width: 28px;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: ${(props) => props.theme.white.dark};
+  transition: transform 0.2s ease;
+  &:hover {
+    color: ${(props) => props.theme.white.light};
+    transform: scale(1.1);
+  }
 `;
 
 const Media = styled.div`
   width: 100%;
   height: 60%;
+  margin-top: 40px;
 `;
 
 const CoverImg = styled.div<{ bgphoto: string }>`
@@ -117,6 +138,12 @@ const Info = styled.div`
   }
 `;
 
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 0.7, zIndex: 1000 },
+  exit: { opacity: 0 },
+};
+
 export default function MovieModal({ layoutId }: IModalProps) {
   const { movieId } = useParams();
   const { data, isLoading } = useQuery<IMovieDetail>({
@@ -130,63 +157,86 @@ export default function MovieModal({ layoutId }: IModalProps) {
   });
 
   const genres = data?.genres.map((item) => item.name).join(', ');
+  const navigate = useNavigate();
+
+  const overlayClicked = () => {
+    closeModal();
+    navigate('/');
+  };
+
+  const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
       {!isLoading ? (
-        <Modal layoutId={layoutId}>
-          <Media>
-            {!isTrailerLoading && trailer ? (
-              <ReactPlayer
-                url={trailer}
-                muted={true}
-                playing={true}
-                controls={true}
-                width={'100%'}
-                height={'100%'}
-              />
-            ) : (
-              <CoverImg
-                bgphoto={makeImagePath(data?.backdrop_path || data?.poster_path)}
-              />
-            )}
-          </Media>
-          <Content>
-            <TopGrid>
-              <Title>{data?.title}</Title>
-              <Rating>
-                <FaStar />
-                {data?.vote_average.toFixed(2)} ({data?.vote_count})
-              </Rating>
-            </TopGrid>
-            <ButtonContainer>
-              <PlayButton>
-                <IoIosPlay />
-                <span>Play</span>
-              </PlayButton>
-              <IconButton icon={<IoMdAdd />} height={25} width={25} />
-              <IconButton icon={<FaRegThumbsUp />} height={25} width={25} />
-              <IconButton icon={<FaRegThumbsDown />} height={25} width={25} />
-            </ButtonContainer>
-            <InfoGrid>
-              <Description>{data?.overview}</Description>
-              <RightInfo>
-                <Info>
-                  <h3>Genres: </h3>
-                  <span>{genres}</span>
-                </Info>
-                <Info>
-                  <h3>Language: </h3>
-                  <span>{data?.spoken_languages[0].english_name}</span>
-                </Info>
-                <Info>
-                  <h3>Release Date: </h3>
-                  <span>{data?.release_date}</span>
-                </Info>
-              </RightInfo>
-            </InfoGrid>
-          </Content>
-        </Modal>
+        <>
+          <Overlay
+            onClick={overlayClicked}
+            variants={overlayVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+          />
+
+          <Modal layoutId={layoutId}>
+            <CloseBtn onClick={closeModal} />
+            <Media>
+              {!isTrailerLoading && trailer ? (
+                <ReactPlayer
+                  url={trailer}
+                  muted={true}
+                  playing={true}
+                  controls={true}
+                  width={'100%'}
+                  height={'100%'}
+                />
+              ) : (
+                <CoverImg
+                  bgphoto={makeImagePath(data?.backdrop_path || data?.poster_path)}
+                />
+              )}
+            </Media>
+            <Content>
+              <TopGrid>
+                <Title>{data?.title}</Title>
+                <Rating>
+                  <FaStar />
+                  {data?.vote_average.toFixed(2)} ({data?.vote_count})
+                </Rating>
+              </TopGrid>
+              <ButtonContainer>
+                <PlayButton>
+                  <IoIosPlay />
+                  <span>Play</span>
+                </PlayButton>
+                <IconButton icon={<IoMdAdd />} height={25} width={25} />
+                <IconButton icon={<FaRegThumbsUp />} height={25} width={25} />
+                <IconButton icon={<FaRegThumbsDown />} height={25} width={25} />
+              </ButtonContainer>
+              <InfoGrid>
+                <Description>{data?.overview}</Description>
+                <RightInfo>
+                  <Info>
+                    <h3>Genres: </h3>
+                    <span>{genres}</span>
+                  </Info>
+                  <Info>
+                    <h3>Language: </h3>
+                    <span>{data?.spoken_languages[0].english_name}</span>
+                  </Info>
+                  <Info>
+                    <h3>Release Date: </h3>
+                    <span>{data?.release_date}</span>
+                  </Info>
+                </RightInfo>
+              </InfoGrid>
+            </Content>
+          </Modal>
+        </>
       ) : null}
     </>
   );

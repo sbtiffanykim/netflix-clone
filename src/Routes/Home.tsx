@@ -9,6 +9,9 @@ import IconButton from '../Components/IconButton';
 import { getNowPlayingMovies, IGetMoviesResult } from '../api';
 import { makeImagePath } from '../utils';
 import MovieModal from '../Components/MovieModal';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { modalState } from '../atoms';
+import Overlay from '../Components/Overlay';
 
 const data: IGetMoviesResult = {
   dates: {
@@ -462,13 +465,6 @@ const ButtonContainer = styled.div`
   gap: 5px;
 `;
 
-const Overlay = styled(motion.div)`
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background-color: rgb(0, 0, 0);
-`;
-
 const rowVariants = {
   hidden: {
     x: window.outerWidth - 25,
@@ -499,12 +495,6 @@ const infoVariants = {
   },
 };
 
-const overlayVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 0.7, zIndex: 1000 },
-  exit: { opacity: 0 },
-};
-
 export default function Home() {
   // const { data: nowPlaying, isLoading: isNowPlayingLoading } = useQuery<IGetMoviesResult>(
   //   {
@@ -532,10 +522,11 @@ export default function Home() {
     setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
   };
   const toggleLeaving = () => setLeaving((prev) => !prev);
+  const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
   const onBoxClicked = (movieId: number) => {
     navigate(`/movies/${movieId}`);
+    setIsModalOpen(true);
   };
-  const overlayClicked = () => navigate('/');
 
   return (
     <Wrapper>
@@ -602,16 +593,7 @@ export default function Home() {
           </Slider>
           <AnimatePresence>
             {moviePathMatch ? (
-              <>
-                <Overlay
-                  onClick={overlayClicked}
-                  variants={overlayVariants}
-                  initial='hidden'
-                  animate='visible'
-                  exit='exit'
-                />
-                <MovieModal layoutId={moviePathMatch.params.movieId} />
-              </>
+              <MovieModal layoutId={moviePathMatch.params.movieId} />
             ) : null}
           </AnimatePresence>
         </>
