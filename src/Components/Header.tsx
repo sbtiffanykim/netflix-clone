@@ -3,6 +3,11 @@ import { motion, useAnimation, useMotionValueEvent, useScroll } from 'framer-mot
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { FaBell } from 'react-icons/fa';
+import { useForm } from 'react-hook-form';
+
+interface IForm {
+  keyword: string;
+}
 
 const Nav = styled(motion.nav)`
   display: flex;
@@ -61,7 +66,7 @@ const Circle = styled(motion.span)`
   margin: 0 auto;
 `;
 
-const SearchBar = styled(motion.div)`
+const SearchBar = styled(motion.form)`
   color: white;
   display: flex;
   align-items: center;
@@ -139,6 +144,11 @@ export default function Header() {
     }
   });
   const goHome = () => navigate('/');
+  const { register, handleSubmit } = useForm<IForm>();
+  const onValid = (data: IForm) => {
+    navigate(`search?keyword=${data.keyword}`);
+  };
+
   return (
     <Nav
       initial={{ backgroundColor: 'rgba(0, 0, 0, 0)' }}
@@ -174,20 +184,7 @@ export default function Header() {
         </Items>
       </Col>
       <Col>
-        {/* <SearchBar>
-          <SearchIcon
-            onClick={toggleSearch}
-            animate={{ x: searchOpen ? -210 : 0 }}
-            transition={{ type: 'linear', duration: 0.3 }}
-          />
-          <Input
-            animate={inputAnimation}
-            type='text'
-            placeholder='Titles, people, genres'
-            transition={{ type: 'linear', duration: 0.3 }}
-          />
-        </SearchBar> */}
-        <SearchBar>
+        <SearchBar onSubmit={handleSubmit(onValid)}>
           <motion.svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 512 512'
@@ -205,6 +202,7 @@ export default function Header() {
             initial={{ scaleX: 0 }}
             animate={inputAnimation}
             transition={{ duration: 0.2 }}
+            {...register('keyword', { required: true, minLength: 2 })}
           />
         </SearchBar>
       </Col>

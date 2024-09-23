@@ -12,7 +12,7 @@ const instance = axios.create({
   },
 });
 
-interface IMovieOverview {
+export interface IMovieOverview {
   adult: false;
   backdrop_path: string;
   genre_ids: number[];
@@ -97,4 +97,14 @@ export const getMovieTrailer = ({ queryKey }: QueryFunctionContext) => {
     );
     return trailers.length ? `https://www.youtube.com/watch?v=${trailers[0].key}` : null;
   });
+};
+
+export const searchMulti = ({ queryKey }: QueryFunctionContext) => {
+  const [, keyword] = queryKey;
+  return instance
+    .get(`/search/multi?query=${keyword}&include_adult=false&language=en-US&page=1`)
+    .then((response) => {
+      console.log(response.data);
+      return response.data;
+    });
 };
