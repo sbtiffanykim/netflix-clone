@@ -18,6 +18,7 @@ const Nav = styled(motion.nav)`
   width: 100%;
   padding: 20px 60px;
   color: white;
+  z-index: 1000;
 `;
 
 const Col = styled.div`
@@ -144,7 +145,7 @@ export default function Header() {
     }
   });
   const goHome = () => navigate('/');
-  const { register, handleSubmit } = useForm<IForm>();
+  const { register, handleSubmit, reset } = useForm<IForm>();
   const onValid = (data: IForm) => {
     navigate(`search?keyword=${data.keyword}`);
   };
