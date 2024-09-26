@@ -9,11 +9,12 @@ import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { modalState } from '../atoms';
-import { IGetMoviesResult } from '../api';
+import { IGetMoviesResult, IMediaResult } from '../api';
 
 interface ISliderProps {
   title: string;
-  data: IGetMoviesResult;
+  data: IGetMoviesResult | IMediaResult;
+  type: 'movies' | 'tv';
 }
 
 const Buttons = styled.div`
@@ -161,7 +162,7 @@ const infoVariants = {
   },
 };
 
-export default function Slider({ data, title }: ISliderProps) {
+export default function Slider({ data, title, type }: ISliderProps) {
   const navigate = useNavigate();
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
@@ -188,8 +189,8 @@ export default function Slider({ data, title }: ISliderProps) {
   const handleExitComplete = () => setLeaving(false);
 
   const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (type: string, id: number) => {
+    navigate(`/${type}/${id}`);
     setIsModalOpen(true);
   };
 
@@ -216,23 +217,23 @@ export default function Slider({ data, title }: ISliderProps) {
           {data?.results
             .slice(1)
             .slice(offset * index, offset * (index + 1))
-            .map((movie) => (
+            .map((media) => (
               <Box
-                layoutId={movie.id + ''}
-                key={movie.id}
+                layoutId={media.id + ''}
+                key={media.id}
                 variants={boxVariants}
                 initial='initial'
                 whileHover='hover'
-                onClick={() => onBoxClicked(movie.id)}
+                onClick={() => onBoxClicked(type, media.id)}
               >
                 <BoxImg
                   bgphoto={makeImagePath(
-                    movie.backdrop_path || movie.poster_path,
+                    media.backdrop_path || media.poster_path,
                     'w500'
                   )}
                 />
                 <Info variants={infoVariants}>
-                  <h4>{movie.title}</h4>
+                  {type === 'movies' ? <h4>{media.title}</h4> : <h4>{media.name}</h4>}
                   <ButtonRow>
                     <ButtonContainer>
                       <IconButton icon={<IoIosPlay />} />

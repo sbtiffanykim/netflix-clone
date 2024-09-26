@@ -143,6 +143,7 @@ export interface ITvSeriesDetail extends IMediaDetail {
   production_companies: ITvCompany[];
   seasons: ITvSeason[];
   type: string;
+  name: string;
 }
 
 export const getNowPlayingMovies = () => {
@@ -207,6 +208,16 @@ export const getTopRatedTv = () => {
 export const getTvDetail = ({ queryKey }: QueryFunctionContext) => {
   const [_, tvId] = queryKey;
   return instance.get(`tv/${tvId}?language=en-US`).then((response) => response.data);
+};
+
+export const getTvTeaser = ({ queryKey }: QueryFunctionContext) => {
+  const [_, tvId] = queryKey;
+  return instance.get(`tv/${tvId}/videos?language=en-US`).then((response) => {
+    const teasers = response.data.results.filter(
+      (video: any) => video.type === 'Teaser' && video.site === 'Youtube'
+    );
+    return teasers.length ? `https://www.youtube.com/watch?v=${teasers[0].key}` : null;
+  });
 };
 
 export const searchMulti = ({ queryKey }: QueryFunctionContext) => {

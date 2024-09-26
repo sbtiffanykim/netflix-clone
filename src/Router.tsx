@@ -15,6 +15,10 @@ const routes = [
         element: <Home />,
       },
       {
+        path: 'tv/:tvId',
+        element: <Home />,
+      },
+      {
         path: 'tv',
         element: <Tv />,
       },

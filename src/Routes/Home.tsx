@@ -13,6 +13,7 @@ import MovieModal from '../Components/MovieModal';
 import Slider from '../Components/Slider';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../atoms';
+import TvModal from '../Components/TvModal';
 
 const Wrapper = styled.div`
   background-color: black;
@@ -68,6 +69,7 @@ export default function Home() {
   });
 
   const moviePathMatch = useMatch('/movies/:movieId');
+  const tvPathMatch = useMatch('/tv/:tvId');
   const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
 
   return (
@@ -85,9 +87,11 @@ export default function Home() {
             <Overview>{movies?.results[0].overview}</Overview>
           </Banner>
           <CarouselContainer>
-            {movies?.results ? <Carousel data={movies} title={'Popular Movies'} /> : null}
+            {movies?.results ? (
+              <Carousel data={movies} title={'Popular Movies'} type='movies' />
+            ) : null}
             {tvSeries?.results ? (
-              <Carousel data={tvSeries} title={'Popular TV Series'} />
+              <Carousel data={tvSeries} title={'Popular TV Series'} type='tv' />
             ) : null}
           </CarouselContainer>
 
@@ -95,6 +99,7 @@ export default function Home() {
             {moviePathMatch ? (
               <MovieModal layoutId={moviePathMatch.params.movieId} />
             ) : null}
+            {tvPathMatch ? <TvModal layoutId={tvPathMatch.params.tvId} /> : null}
           </AnimatePresence>
         </>
       )}
