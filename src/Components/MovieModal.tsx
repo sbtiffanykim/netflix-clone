@@ -159,23 +159,19 @@ export default function MovieModal({ layoutId }: IModalProps) {
   const genres = data?.genres.map((item) => item.name).join(', ');
   const navigate = useNavigate();
 
-  const overlayClicked = () => {
-    closeModal();
+  const closeModal = () => {
+    setIsModalOpen(false);
     navigate('/');
   };
 
   const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
 
   return (
     <>
       {!isLoading ? (
         <>
           <Overlay
-            onClick={overlayClicked}
+            onClick={closeModal}
             variants={overlayVariants}
             initial='hidden'
             animate='visible'
