@@ -58,6 +58,8 @@ const CoverImg = styled.div<{ bgphoto: string }>`
     url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
+  height: 100%;
+  width: 100%;
 `;
 
 const Content = styled.div`
@@ -181,7 +183,9 @@ export default function MovieModal({ layoutId }: IModalProps) {
           <Modal layoutId={layoutId}>
             <CloseBtn onClick={closeModal} />
             <Media>
-              {!isTrailerLoading && trailer ? (
+              {isTrailerLoading ? (
+                'loading...'
+              ) : trailer ? (
                 <ReactPlayer
                   url={trailer}
                   muted={true}
@@ -214,7 +218,9 @@ export default function MovieModal({ layoutId }: IModalProps) {
                 <IconButton icon={<FaRegThumbsDown />} height={25} width={25} />
               </ButtonContainer>
               <InfoGrid>
-                <Description>{data?.overview}</Description>
+                <Description>
+                  {data?.overview ? data?.overview : 'Overview is not provided'}
+                </Description>
                 <RightInfo>
                   <Info>
                     <h3>Genres: </h3>
