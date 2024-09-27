@@ -9,7 +9,12 @@ import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { modalState } from '../atoms';
-import { IGetMoviesResult, IMediaResult } from '../api';
+import {
+  IGetMoviesResult,
+  IMediaResult,
+  IMovieOverview,
+  ITvSeriesOverview,
+} from '../api';
 
 interface ISliderProps {
   title: string;
@@ -17,45 +22,38 @@ interface ISliderProps {
   type: 'movies' | 'tv';
 }
 
-const Buttons = styled.div`
-  position: absolute;
-  padding: 10px 5px;
-  top: 40%;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-`;
-
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 400px;
-  position: relative;
-  margin-bottom: 50px;
-  &:hover ${Buttons} {
-    opacity: 1;
-  }
+  width: 100vw;
+  height: auto;
+  margin-bottom: 180px;
 `;
 
-const Title = styled.h1`
+const SliderTitle = styled.h2`
   font-weight: 600;
-  margin-left: 15px;
-  margin-bottom: 20px;
   font-size: 23px;
   margin-bottom: 15px;
-  z-index: 3;
+  z-index: 0;
+  left: 5px;
 `;
 
 const Row = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  position: relative;
+  position: absolute;
   width: 100%;
   gap: 5px;
+  padding-right: 40px;
+`;
+
+const PagingButtons = styled(motion.div)`
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  margin-left: -15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
 `;
 
 const Button = styled(motion.button)`
@@ -69,8 +67,8 @@ const Button = styled(motion.button)`
   padding: 6px;
   color: ${(props) => props.theme.white.light};
   background-color: ${(props) => props.theme.black.darker};
+  z-index: 10;
   cursor: pointer;
-
   svg {
     height: 25px;
     width: 25px;
@@ -134,24 +132,31 @@ const ButtonContainer = styled.div`
 
 const rowVariants = {
   hidden: {
-    x: window.outerWidth - 25,
+    x: window.innerWidth,
   },
   visible: {
     x: 0,
   },
   exit: {
-    x: -window.outerWidth + 25,
+    x: -window.innerWidth,
   },
 };
 
 const boxVariants = {
   initial: {
     scale: 1,
+    opacity: 1,
   },
   hover: {
-    scale: 1.2,
+    opacity: 1,
+    scale: 1.1,
+    zIndex: 100,
     y: -100,
     transition: { delay: 0.5, type: 'tween', duration: 0.2 },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.2 },
   },
 };
 
@@ -196,7 +201,7 @@ export default function Slider({ data, title, type }: ISliderProps) {
 
   return (
     <Wrapper>
-      <Title>{title}</Title>
+      <SliderTitle>{title}</SliderTitle>
       <AnimatePresence onExitComplete={handleExitComplete} initial={false}>
         <Row
           key={index}
@@ -206,14 +211,14 @@ export default function Slider({ data, title, type }: ISliderProps) {
           exit='exit'
           transition={{ type: 'tween', duration: 0.8 }}
         >
-          <Buttons>
+          <PagingButtons>
             <Button>
               <GrFormPrevious onClick={decreaseIndex} />
             </Button>
             <Button onClick={increaseIndex}>
               <GrFormNext />
             </Button>
-          </Buttons>
+          </PagingButtons>
           {data?.results
             .slice(1)
             .slice(offset * index, offset * (index + 1))
@@ -224,6 +229,7 @@ export default function Slider({ data, title, type }: ISliderProps) {
                 variants={boxVariants}
                 initial='initial'
                 whileHover='hover'
+                exit='exit'
                 onClick={() => onBoxClicked(type, media.id)}
               >
                 <BoxImg
@@ -233,7 +239,11 @@ export default function Slider({ data, title, type }: ISliderProps) {
                   )}
                 />
                 <Info variants={infoVariants}>
-                  {type === 'movies' ? <h4>{media.title}</h4> : <h4>{media.name}</h4>}
+                  {type === 'movies' ? (
+                    <h4>{(media as IMovieOverview).title}</h4>
+                  ) : (
+                    <h4>{(media as ITvSeriesOverview).name}</h4>
+                  )}
                   <ButtonRow>
                     <ButtonContainer>
                       <IconButton icon={<IoIosPlay />} />
