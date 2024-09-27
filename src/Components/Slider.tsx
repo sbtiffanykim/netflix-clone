@@ -1,13 +1,13 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { makeImagePath } from '../utils';
 import { IoIosPlay, IoMdAdd } from 'react-icons/io';
 import { FaAngleDown, FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
 import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 import IconButton from './IconButton';
-import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { useNavigate } from 'react-router-dom';
+import { makeImagePath } from '../utils';
 import { modalState } from '../atoms';
 import {
   IGetMoviesResult,
